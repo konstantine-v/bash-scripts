@@ -1,0 +1,72 @@
+#!/usr/bin/env sh
+# Use the data from the US National Weather Service to view the radar for weather in your area
+# Intended for US only
+
+TWR="Weather Radar"
+
+function usage() {
+    cat <<USAGE
+
+    Usage: $0 [-r region] [-n] [-w] [t]
+
+    Options:
+        -r, --region:       Show regional radar
+        -n, --national:     Show national weather graph
+        -w, --weather:      Show weather forcast for region
+        -t, --temps:        Show temperatures throught the region
+USAGE
+    exit 1
+}
+
+if [ $# -eq 0 ]; then
+    usage
+    exit 1
+fi
+
+while [ "$1" != "" ]; do
+    case $1 in
+    -n | --national)
+        notify-send "$TWR" "Opening national radar."
+        mpv --title="$TWR" --cache=yes --loop-file=inf "https://radar.weather.gov/ridge/lite/KEWX_loop.gifhttps://www.wpc.ncep.noaa.gov/noaa/noaad1.gif?1618452312"
+        ;;
+    -r | --region)
+        shift
+        TAG=$1
+        if [[ $TAG == "" ]]; then
+            echo "You must provide a tag when using the -r flag, please try again...";
+            exit 1;
+        fi
+        notify-send "$TWR" "Opening radar for $TAG region."
+        mpv --title="$TWR" --cache=yes --loop-file=inf "https://radar.weather.gov/ridge/lite/K${TAG^^}_loop.gif"
+        # mpv --title="$TWR" --cache=yes --loop-file=inf "https://radar.weather.gov/ridge/lite/N0R/${TAG^^}_loop.gif"
+        ;;
+    -w | --weather)
+        shift
+        TAG=$1
+        if [[ $TAG == "" ]]; then
+            echo "You must provide a tag when using the -w flag, please try again...";
+            exit 1;
+        fi
+        notify-send "$TWR" "Opening radar for $TAG region."
+        mpv --title="$TWR" --cache=yes --loop-file=inf "https://www.weather.gov/images/${TAG,,}/graphicast/image4.png"
+        ;;
+    -t | --temps)
+        shift
+        TAG=$1
+        if [[ $TAG == "" ]]; then
+            echo "You must provide a tag when using the -t flag, please try again...";
+            exit 1;
+        fi
+        mpv --title="$TWR" --cache=yes --loop-file=inf "https://graphical.weather.gov/images/${TAG,,}/T2_${TAG,,}.png"
+        ;;
+    -h | --help)
+        usage
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+done
+
