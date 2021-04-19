@@ -1,0 +1,2 @@
+#+TITLE: Readme
+These are shell scripts I use to automate tasks on my machines. I'm including these as reference for other scripts I write as well as for others to use and modify.
