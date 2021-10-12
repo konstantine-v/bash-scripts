@@ -1,19 +1,21 @@
-#!/usr/bin/env sh
+#!/bin/bash
 # Use the data from the US National Weather Service to view the radar for weather in your area
 # Intended for US only
 
+# Title
 TWR="Weather Radar"
 
-function usage() {
+usage() {
     cat <<USAGE
 
-    Usage: $0 [-r region] [-n] [-w] [t]
+    Usage: $0 [-r radar] [-n] [-w] [-t] [-f]
 
     Options:
-        -r, --region:       Show regional radar
+        -r, --radar:       Show regional radar
         -n, --national:     Show national weather graph
+        -f, --forecast:     Show detailed regional forecast map for region
         -w, --weather:      Show weather forcast for region
-        -t, --temps:        Show temperatures throught the region
+        -t, --temps:        Show basic temperature forcast for region
 USAGE
     exit 1
 }
@@ -25,11 +27,11 @@ fi
 
 while [ "$1" != "" ]; do
     case $1 in
-    -n | --national)
+    n | -n | --national | national)
         notify-send "$TWR" "Opening national radar."
-        mpv --title="$TWR" --cache=yes --loop-file=inf "https://radar.weather.gov/ridge/lite/KEWX_loop.gifhttps://www.wpc.ncep.noaa.gov/noaa/noaad1.gif?1618452312"
+        mpv --title="$TWR" --cache=yes --loop-file=inf "https://www.wpc.ncep.noaa.gov/noaa/noaad1.gif"
         ;;
-    -r | --region)
+    r | -r | --radar)
         shift
         TAG=$1
         if [[ $TAG == "" ]]; then
@@ -40,7 +42,7 @@ while [ "$1" != "" ]; do
         mpv --title="$TWR" --cache=yes --loop-file=inf "https://radar.weather.gov/ridge/lite/K${TAG^^}_loop.gif"
         # mpv --title="$TWR" --cache=yes --loop-file=inf "https://radar.weather.gov/ridge/lite/N0R/${TAG^^}_loop.gif"
         ;;
-    -w | --weather)
+    w | -w | --weather)
         shift
         TAG=$1
         if [[ $TAG == "" ]]; then
@@ -50,7 +52,17 @@ while [ "$1" != "" ]; do
         notify-send "$TWR" "Opening radar for $TAG region."
         mpv --title="$TWR" --cache=yes --loop-file=inf "https://www.weather.gov/images/${TAG,,}/graphicast/image4.png"
         ;;
-    -t | --temps)
+    f | -f | --forcast)
+        shift
+        TAG=$1
+        if [[ $TAG == "" ]]; then
+            echo "You must provide a tag when using the -f flag, please try again...";
+            exit 1;
+        fi
+        notify-send "$TWR" "Opening radar for $TAG region."
+        mpv --title="$TWR" --cache=yes --loop-file=inf "https://www.weather.gov/images/${TAG,,}/graphicast/image1.png"
+        ;;
+    t | -t | --temps)
         shift
         TAG=$1
         if [[ $TAG == "" ]]; then
@@ -59,7 +71,7 @@ while [ "$1" != "" ]; do
         fi
         mpv --title="$TWR" --cache=yes --loop-file=inf "https://graphical.weather.gov/images/${TAG,,}/T2_${TAG,,}.png"
         ;;
-    -h | --help)
+    h | help | -h | --help)
         usage
         ;;
     *)
